@@ -2,6 +2,8 @@ package com.testcontainers;
 
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.KINESIS;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
@@ -27,13 +29,16 @@ public class App {
         localStack.getEndpointConfiguration(KINESIS).getServiceEndpoint(),
         REGION);
 
+    var basicAWSCredentials = new BasicAWSCredentials("", "");
+    var credentialsProvider = new AWSStaticCredentialsProvider(basicAWSCredentials);
     AmazonKinesis kinesis = AmazonKinesisClientBuilder
         .standard()
+        .withCredentials(credentialsProvider)
         .withEndpointConfiguration(endpointConfiguration)
         .build();
 
     // Work with kinesis
-    // kinesis.putRecord
+    kinesis.putRecord("streamName", null, "p1");
   }
 
 }
