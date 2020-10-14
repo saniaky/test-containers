@@ -5,8 +5,9 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
+import com.amazonaws.services.kinesis.model.PutRecordRequest;
+import java.nio.ByteBuffer;
 import org.apache.log4j.BasicConfigurator;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer.Service;
@@ -31,14 +32,18 @@ public class App {
 
     var basicAWSCredentials = new BasicAWSCredentials("", "");
     var credentialsProvider = new AWSStaticCredentialsProvider(basicAWSCredentials);
-    AmazonKinesis kinesis = AmazonKinesisClientBuilder
+
+    // Work with kinesis
+    var kinesis = AmazonKinesisClientBuilder
         .standard()
         .withCredentials(credentialsProvider)
         .withEndpointConfiguration(endpointConfiguration)
         .build();
-
-    // Work with kinesis
-    kinesis.putRecord("streamName", null, "p1");
+    var request = new PutRecordRequest()
+        .withStreamName("streamName")
+        .withPartitionKey("p1")
+        .withData(ByteBuffer.wrap("some message".getBytes()));
+    kinesis.putRecord(request);
   }
 
 }
